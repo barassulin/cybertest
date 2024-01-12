@@ -1,0 +1,56 @@
+import socket
+import socket
+import time
+
+HOST = '172.16.1.117'  # The server's hostname or IP address
+PORT = 8080        # The port used by the server
+QUEUE_LEN = 1
+IP = "0.0.0.0"
+
+def main():
+    """Connects to the server, sends a request, and prints the response."""
+
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        try:
+            s.connect((HOST, PORT))
+            print("h")
+            # Send a request to the server
+            request = 'MARVEL /randevus?id=214154403 CYBER/3.0~Authorization: Avengers~~'
+            s.sendall(request.encode())
+
+            # Receive the server's response
+            data = s.recv(1024)
+            print(data)
+            new_port=int(data[-5:])
+            print(new_port)
+            s.close()
+            my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            try:
+                print("Listening for connections on port %d" % new_port)
+                my_socket.bind((IP, new_port))
+                my_socket.listen(QUEUE_LEN)
+                while True:
+                    print("g")
+                    client_socket, client_address = my_socket.accept()
+                    try:
+                        print('New connection received')
+                        data = client_socket.recv(1024)
+                        print("data: "+data)
+                    except socket.error as err:
+                        print('received socket exception - ' + str(err))
+                    finally:
+                        client_socket.close()
+            except socket.error as err:
+                print('received socket exception - ' + str(err))
+            finally:
+                my_socket.close()
+
+        except ConnectionRefusedError:
+            print("Connection to server failed.")
+
+        except Exception as e:
+            print(f"An error occurred: {e}")
+
+
+if __name__ == '__main__':
+    main()
